@@ -1,26 +1,27 @@
 cmake_minimum_required(VERSION 3.9)
 project(Magick.NET.Native C)
 
-set(CMAKE_C_STANDARD 99)
+if (${HDRI})
+    set(HDRI_SUFFIX HDRI)
+    set(HDRI_DASH -)
+endif()
+
+set(TARGET_NAME Magick.NET-Q${QUANTUM_DEPTH}-${HDRI_SUFFIX}${HDRI_DASH}x64.Native.dll)
 
 if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
-    add_definitions(-DMAGICK_NET_LINUX)
-elseif(CMAKE_SYSTEM_NAME STREQUAL Darwin)
-    add_definitions(-DMAGICK_NET_LINUX)
     include_directories(SYSTEM /usr/local/include)
 endif()
 
-if(MAGICKCORE_HDRI_ENABLE STREQUAL 1)
-    set(MAGICKCORE_HDRI "HDRI")
-else()
-    set(MAGICKCORE_HDRI "")
-endif()
+find_package(PkgConfig REQUIRED)
+find_package(JPEG REQUIRED)
 
-include_directories(. /usr/local/include/ImageMagick-7/)
-link_libraries(libjpeg.a libMagickCore-7.Q${MAGICKCORE_QUANTUM_DEPTH}${MAGICKCORE_HDRI}.a libMagickWand-7.Q${MAGICKCORE_QUANTUM_DEPTH}${MAGICKCORE_HDRI}.a)
-add_definitions(-DMAGICKCORE_QUANTUM_DEPTH=${MAGICKCORE_QUANTUM_DEPTH} -DMAGICKCORE_HDRI_ENABLE=${MAGICKCORE_HDRI_ENABLE})
+pkg_check_modules(IM MagickWand-7.Q${QUANTUM_DEPTH}${HDRI_SUFFIX} REQUIRED)
 
-add_library(Magick.NET-Q${MAGICKCORE_QUANTUM_DEPTH}-${MAGICKCORE_HDRI}-x64.Native SHARED
+add_definitions(-DMAGICK_NET_LINUX -DMAGICKCORE_QUANTUM_DEPTH=${QUANTUM_DEPTH} -DMAGICKCORE_HDRI_ENABLE=${HDRI})
+
+include_directories(. ${IM_INCLUDE_DIRS})
+
+add_library(${TARGET_NAME} SHARED
         Stdafx.c
         Stdafx.h
         MagickFormatInfo.c
@@ -99,3 +100,5 @@ add_library(Magick.NET-Q${MAGICKCORE_QUANTUM_DEPTH}-${MAGICKCORE_HDRI}-x64.Nativ
         Types/TypeMetric.c
         Types/TypeMetric.h
         )
+
+target_link_libraries(${TARGET_NAME} ${IM_LIBRARIES} ${JPEG_LIBRARIES})
