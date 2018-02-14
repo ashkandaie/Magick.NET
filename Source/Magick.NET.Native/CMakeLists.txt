@@ -8,10 +8,6 @@ endif()
 
 set(TARGET_NAME Magick.NET-Q${QUANTUM_DEPTH}-${HDRI_SUFFIX}${HDRI_DASH}x64.Native.dll)
 
-if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
-    include_directories(SYSTEM /usr/local/include)
-endif()
-
 find_package(PkgConfig REQUIRED)
 find_package(JPEG REQUIRED)
 
@@ -20,6 +16,15 @@ pkg_check_modules(IM MagickWand-7.Q${QUANTUM_DEPTH}${HDRI_SUFFIX} REQUIRED)
 add_definitions(-DMAGICK_NET_LINUX -DMAGICKCORE_QUANTUM_DEPTH=${QUANTUM_DEPTH} -DMAGICKCORE_HDRI_ENABLE=${HDRI})
 
 include_directories(. ${IM_INCLUDE_DIRS})
+
+if(CMAKE_SYSTEM_NAME STREQUAL Linux)
+    set(IM_LIBS ${IM_STATIC_LIBRARIES})
+    set(JPEG_LIBS ${JPEG_STATIC_LIBRARIES})
+elseif(CMAKE_SYSTEM_NAME STREQUAL Darwin)
+    set(IM_LIBS ${IM_LIBRARIES})
+    set(JPEG_LIBS ${JPEG_LIBRARIES})
+    include_directories(SYSTEM /usr/local/include)
+endif()
 
 add_library(${TARGET_NAME} SHARED
         Stdafx.c
@@ -101,4 +106,4 @@ add_library(${TARGET_NAME} SHARED
         Types/TypeMetric.h
         )
 
-target_link_libraries(${TARGET_NAME} ${IM_LIBRARIES} ${JPEG_LIBRARIES})
+target_link_libraries(${TARGET_NAME} ${IM_LIBS} ${JPEG_LIBS})
