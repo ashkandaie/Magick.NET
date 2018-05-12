@@ -341,12 +341,8 @@
             "arguments":
             [
                 {
-                    "name": "width",
-                    "type": "size_t"
-                },
-                {
-                    "name": "height",
-                    "type": "size_t"
+                    "name": "geometry",
+                    "type": "string"
                 }
             ]
         },
@@ -980,6 +976,22 @@
                 {
                     "name": "geometry",
                     "type": "MagickRectangle"
+                }
+            ]
+        },
+        {
+            "name": "CropAspectRatio",
+            "instance": true,
+            "throws": true,
+            "arguments":
+            [
+                {
+                    "name": "geometry",
+                    "type": "string"
+                },
+                {
+                    "name": "gravity",
+                    "type": "Gravity"
                 }
             ]
         },
@@ -1654,6 +1666,10 @@
                 {
                     "name": "strength",
                     "type": "double"
+                },
+                {
+                    "name": "channels",
+                    "type": "Channels"
                 }
             ]
         },

@@ -2806,9 +2806,22 @@ namespace ImageMagick
         }
         private void ExecuteLocalContrast(XmlElement element, IMagickImage image)
         {
-            double radius_ = Variables.GetValue<double>(element, "radius");
-            Percentage strength_ = Variables.GetValue<Percentage>(element, "strength");
-            image.LocalContrast(radius_, strength_);
+            Hashtable arguments = new Hashtable();
+            foreach (XmlAttribute attribute in element.Attributes)
+            {
+                if (attribute.Name == "channels")
+                    arguments["channels"] = Variables.GetValue<Channels>(attribute);
+                else if (attribute.Name == "radius")
+                    arguments["radius"] = Variables.GetValue<double>(attribute);
+                else if (attribute.Name == "strength")
+                    arguments["strength"] = Variables.GetValue<Percentage>(attribute);
+            }
+            if (OnlyContains(arguments, "radius", "strength"))
+                image.LocalContrast((double)arguments["radius"], (Percentage)arguments["strength"]);
+            else if (OnlyContains(arguments, "radius", "strength", "channels"))
+                image.LocalContrast((double)arguments["radius"], (Percentage)arguments["strength"], (Channels)arguments["channels"]);
+            else
+                throw new ArgumentException("Invalid argument combination for 'localContrast', allowed combinations are: [radius, strength] [radius, strength, channels]");
         }
         private void ExecuteLower(XmlElement element, IMagickImage image)
         {
@@ -3691,11 +3704,19 @@ namespace ImageMagick
             else
                 throw new ArgumentException("Invalid argument combination for 'tint', allowed combinations are: [opacity] [opacity, color]");
         }
-        private static void ExecuteTransformColorSpace(XmlElement element, IMagickImage image)
+        private void ExecuteTransformColorSpace(XmlElement element, IMagickImage image)
         {
-            ColorProfile source_ = CreateColorProfile(element["source"]);
-            ColorProfile target_ = CreateColorProfile(element["target"]);
-            image.TransformColorSpace(source_, target_);
+            Hashtable arguments = new Hashtable();
+            foreach (XmlElement elem in element.SelectNodes("*"))
+            {
+                arguments[elem.Name] = CreateColorProfile(elem);
+            }
+            if (OnlyContains(arguments, "source", "target"))
+                image.TransformColorSpace((ColorProfile)arguments["source"], (ColorProfile)arguments["target"]);
+            else if (OnlyContains(arguments, "target"))
+                image.TransformColorSpace((ColorProfile)arguments["target"]);
+            else
+                throw new ArgumentException("Invalid argument combination for 'transformColorSpace', allowed combinations are: [source, target] [target]");
         }
         private void ExecuteTransparent(XmlElement element, IMagickImage image)
         {

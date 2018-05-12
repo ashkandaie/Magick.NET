@@ -82,11 +82,6 @@
 //#define MAGICKCORE_ZERO_CONFIGURATION_SUPPORT
 
 /*
-  Define to use the bzip2 compression library
-*/
-#define MAGICKCORE_BZLIB_DELEGATE
-
-/*
   Define to use the OpenEXR library
 */
 #define MAGICKCORE_OPENEXR_DELEGATE
@@ -111,6 +106,11 @@
 */
 #define MAGICKCORE_LCMS_DELEGATE
 #define MAGICKCORE_HAVE_LCMS2_H
+
+/*
+  Define to use the libheif library
+*/
+#define MAGICKCORE_HEIC_DELEGATE
 
 /*
   Define to use the Raw library

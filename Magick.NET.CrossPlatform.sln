@@ -1,15 +1,20 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.16
+VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Magick.NET.ubuntu.16.04", "Source\Magick.NET.CrossPlatform\Magick.NET.ubuntu.16.04.vcxproj", "{6F17FA39-6A72-4FF6-963E-2C66AE8D969D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Magick.NET.CrossPlatform", "Source\Magick.NET.CrossPlatform\Magick.NET.CrossPlatform.vcxproj", "{6F17FA39-6A72-4FF6-963E-2C66AE8D969D}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dockerfiles", "Dockerfiles", "{3509E7AD-A097-40A8-82E2-48195A38DCF3}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ubuntu.16.04", "ubuntu.16.04", "{97BED7DE-BF9D-4B97-9099-21C52830C877}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution items", "Solution items", "{ED719399-610E-40B1-A3DE-0BABB2477012}"
 	ProjectSection(SolutionItems) = preProject
-		Source\Magick.NET.CrossPlatform\ubuntu.16.04\Dockerfile = Source\Magick.NET.CrossPlatform\ubuntu.16.04\Dockerfile
+		Source\Magick.NET.CrossPlatform\authorized_keys = Source\Magick.NET.CrossPlatform\authorized_keys
+		Source\Magick.NET.CrossPlatform\Azure.txt = Source\Magick.NET.CrossPlatform\Azure.txt
+		Source\Magick.NET.CrossPlatform\Build.Linux.sh = Source\Magick.NET.CrossPlatform\Build.Linux.sh
+		ImageMagick\Source\Checkout.sh = ImageMagick\Source\Checkout.sh
+		Source\Magick.NET.CrossPlatform\Linux.Dockerfile = Source\Magick.NET.CrossPlatform\Linux.Dockerfile
+		Source\Magick.NET.CrossPlatform\Linux.Verify = Source\Magick.NET.CrossPlatform\Linux.Verify
+		Source\Magick.NET.CrossPlatform\Linux.Verify.Dockerfile = Source\Magick.NET.CrossPlatform\Linux.Verify.Dockerfile
+		Source\Magick.NET.CrossPlatform\Verify.Linux.sh = Source\Magick.NET.CrossPlatform\Verify.Linux.sh
 	EndProjectSection
 EndProject
 Global
@@ -29,7 +34,7 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{97BED7DE-BF9D-4B97-9099-21C52830C877} = {3509E7AD-A097-40A8-82E2-48195A38DCF3}
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3428DA1F-A45F-4688-A173-BD536B1A6A9F}
 	EndGlobalSection
 EndGlobal

@@ -152,7 +152,7 @@ MAGICK_NET_EXPORT void MagickImage_WriteMask_Set(Image *, const Image *, Excepti
 
 MAGICK_NET_EXPORT Image *MagickImage_AdaptiveBlur(const Image *, const double, const double, ExceptionInfo **);
 
-MAGICK_NET_EXPORT Image *MagickImage_AdaptiveResize(const Image *, const size_t, const size_t, ExceptionInfo **);
+MAGICK_NET_EXPORT Image *MagickImage_AdaptiveResize(const Image *, const char *, ExceptionInfo **);
 
 MAGICK_NET_EXPORT Image *MagickImage_AdaptiveSharpen(Image *, const double, const double, const size_t, ExceptionInfo **);
 
@@ -233,6 +233,8 @@ MAGICK_NET_EXPORT Image *MagickImage_Convolve(const Image *, const KernelInfo *,
 MAGICK_NET_EXPORT void MagickImage_CopyPixels(Image *, const Image *, const RectangleInfo *, const OffsetInfo *, const size_t, ExceptionInfo **);
 
 MAGICK_NET_EXPORT Image *MagickImage_Crop(const Image *, const RectangleInfo *, ExceptionInfo **);
+
+MAGICK_NET_EXPORT Image *MagickImage_CropAspectRatio(Image *, const char *, const GravityType, ExceptionInfo **);
 
 MAGICK_NET_EXPORT Image *MagickImage_CropToTiles(const Image *, const char *, ExceptionInfo **);
 
@@ -336,7 +338,7 @@ MAGICK_NET_EXPORT void MagickImage_LinearStretch(Image *, const double, const do
 
 MAGICK_NET_EXPORT Image *MagickImage_LiquidRescale(const Image *, const char *, ExceptionInfo **);
 
-MAGICK_NET_EXPORT Image *MagickImage_LocalContrast(const Image *, const double, const double, ExceptionInfo **);
+MAGICK_NET_EXPORT Image *MagickImage_LocalContrast(Image *, const double, const double, const size_t, ExceptionInfo **);
 
 MAGICK_NET_EXPORT Image *MagickImage_Magnify(const Image *, ExceptionInfo **);
 

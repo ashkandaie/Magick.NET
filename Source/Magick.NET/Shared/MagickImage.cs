@@ -709,13 +709,15 @@ namespace ImageMagick
         }
 
         /// <summary>
+        /// Gets a value indicating whether the instance is disposed.
+        /// </summary>
+        public bool IsDisposed => _nativeInstance.IsDisposed;
+
+        /// <summary>
         /// Gets a value indicating whether none of the pixels in the image have an alpha value other
         /// than OpaqueAlpha (QuantumRange).
         /// </summary>
-        public bool IsOpaque
-        {
-            get { return _nativeInstance.IsOpaque; }
-        }
+        public bool IsOpaque => _nativeInstance.IsOpaque;
 
         /// <summary>
         /// Gets or sets the label of the image.
@@ -1010,13 +1012,17 @@ namespace ImageMagick
         /// Resize using mesh interpolation. It works well for small resizes of less than +/- 50%
         /// of the original image size. For larger resizing on images a full filtered and slower resize
         /// function should be used instead.
+        /// <para />
+        /// Resize will fit the image into the requested size. It does NOT fill, the requested box size.
+        /// Use the <see cref="MagickGeometry"/> overload for more control over the resulting size.
         /// </summary>
         /// <param name="width">The new width.</param>
         /// <param name="height">The new height.</param>
         /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
         public void AdaptiveResize(int width, int height)
         {
-            _nativeInstance.AdaptiveResize(width, height);
+            MagickGeometry geometry = new MagickGeometry(width, height);
+            AdaptiveResize(geometry);
         }
 
         /// <summary>
@@ -1030,7 +1036,7 @@ namespace ImageMagick
         {
             Throw.IfNull(nameof(geometry), geometry);
 
-            AdaptiveResize(geometry.Width, geometry.Height);
+            _nativeInstance.AdaptiveResize(MagickGeometry.ToString(geometry));
         }
 
         /// <summary>
@@ -2415,7 +2421,10 @@ namespace ImageMagick
         {
             Throw.IfNull(nameof(geometry), geometry);
 
-            _nativeInstance.Crop(MagickRectangle.FromGeometry(geometry, this));
+            if (geometry.AspectRatio)
+                _nativeInstance.CropAspectRatio(geometry.ToString(), Gravity.Undefined);
+            else
+                _nativeInstance.Crop(MagickRectangle.FromGeometry(geometry, this));
         }
 
         /// <summary>
@@ -2429,7 +2438,10 @@ namespace ImageMagick
         {
             Throw.IfNull(nameof(geometry), geometry);
 
-            Crop(geometry.Width, geometry.Height, gravity);
+            if (geometry.AspectRatio)
+                _nativeInstance.CropAspectRatio(geometry.ToString(), gravity);
+            else
+                Crop(geometry.Width, geometry.Height, gravity);
         }
 
         /// <summary>
@@ -3933,7 +3945,19 @@ namespace ImageMagick
         /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
         public void LocalContrast(double radius, Percentage strength)
         {
-            _nativeInstance.LocalContrast(radius, strength.ToDouble());
+            LocalContrast(radius, strength, ImageMagick.Channels.Composite);
+        }
+
+        /// <summary>
+        /// Local contrast enhancement.
+        /// </summary>
+        /// <param name="radius">The radius of the Gaussian, in pixels, not counting the center pixel.</param>
+        /// <param name="strength">The strength of the blur mask.</param>
+        /// <param name="channels">The channel(s) that should be changed.</param>
+        /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
+        public void LocalContrast(double radius, Percentage strength, Channels channels)
+        {
+            _nativeInstance.LocalContrast(radius, strength.ToDouble(), channels);
         }
 
         /// <summary>
@@ -4958,6 +4982,9 @@ namespace ImageMagick
 
         /// <summary>
         /// Resize image to specified size.
+        /// <para />
+        /// Resize will fit the image into the requested size. It does NOT fill, the requested box size.
+        /// Use the <see cref="MagickGeometry"/> overload for more control over the resulting size.
         /// </summary>
         /// <param name="width">The new width.</param>
         /// <param name="height">The new height.</param>
@@ -5052,19 +5079,10 @@ namespace ImageMagick
         }
 
         /// <summary>
-        /// Resize image by using simple ratio algorithm.
-        /// </summary>
-        /// <param name="width">The new width.</param>
-        /// <param name="height">The new height.</param>
-        /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
-        public void Scale(int width, int height)
-        {
-            MagickGeometry geometry = new MagickGeometry(width, height);
-            Scale(geometry);
-        }
-
-        /// <summary>
         /// Resize image by using pixel sampling algorithm.
+        /// <para />
+        /// Resize will fit the image into the requested size. It does NOT fill, the requested box size.
+        /// Use the <see cref="MagickGeometry"/> overload for more control over the resulting size.
         /// </summary>
         /// <param name="width">The new width.</param>
         /// <param name="height">The new height.</param>
@@ -5110,6 +5128,21 @@ namespace ImageMagick
 
             MagickGeometry geometry = new MagickGeometry(percentageWidth, percentageHeight);
             Sample(geometry);
+        }
+
+        /// <summary>
+        /// Resize image by using simple ratio algorithm.
+        /// <para />
+        /// Resize will fit the image into the requested size. It does NOT fill, the requested box size.
+        /// Use the <see cref="MagickGeometry"/> overload for more control over the resulting size.
+        /// </summary>
+        /// <param name="width">The new width.</param>
+        /// <param name="height">The new height.</param>
+        /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
+        public void Scale(int width, int height)
+        {
+            MagickGeometry geometry = new MagickGeometry(width, height);
+            Scale(geometry);
         }
 
         /// <summary>
@@ -5900,6 +5933,9 @@ namespace ImageMagick
 
         /// <summary>
         /// Resize image to thumbnail size.
+        /// <para />
+        /// Resize will fit the image into the requested size. It does NOT fill, the requested box size.
+        /// Use the <see cref="MagickGeometry"/> overload for more control over the resulting size.
         /// </summary>
         /// <param name="width">The new width.</param>
         /// <param name="height">The new height.</param>
@@ -6733,12 +6769,15 @@ namespace ImageMagick
             }
 
             Settings.Ping = ping;
+
             _nativeInstance.ReadBlob(Settings, data, length);
+
+            ResetSettings();
         }
 
         private void Read(Stream stream, MagickReadSettings readSettings, bool ping)
         {
-            Throw.IfNull(nameof(stream), stream);
+            Throw.IfNullOrEmpty(nameof(stream), stream);
 
             Bytes bytes = Bytes.FromStreamBuffer(stream);
             if (bytes != null)
@@ -6774,6 +6813,8 @@ namespace ImageMagick
 
                 _nativeInstance.ReadStream(Settings, readStream, seekStream, tellStream);
             }
+
+            ResetSettings();
         }
 
         private void Read(string fileName, MagickReadSettings readSettings, bool ping)
@@ -6795,6 +6836,8 @@ namespace ImageMagick
             Settings.FileName = filePath;
 
             _nativeInstance.ReadFile(Settings);
+
+            ResetSettings();
         }
 
         private void ReadPixels(byte[] data, int length, MagickReadSettings readSettings)
@@ -6808,6 +6851,11 @@ namespace ImageMagick
             Throw.IfTrue(nameof(data), length < expectedLength, "The array length is " + length + " but should be at least " + expectedLength + ".");
 
             _nativeInstance.ReadPixels(readSettings.Width.Value, readSettings.Height.Value, readSettings.PixelStorage.Mapping, readSettings.PixelStorage.StorageType, data);
+        }
+
+        private void ResetSettings()
+        {
+            Settings.Format = MagickFormat.Unknown;
         }
 
         private void SetInstance(NativeMagickImage instance)

@@ -95,6 +95,11 @@ MAGICK_NET_LINK_LIB("lcms")
 MAGICK_NET_LINK_LIB("openjpeg")
 #endif
 
+#if defined(MAGICKCORE_HEIC_DELEGATE)
+MAGICK_NET_LINK_LIB("libde265")
+MAGICK_NET_LINK_LIB("libheif")
+#endif
+
 #if defined(MAGICKCORE_RAW_R_DELEGATE)
 MAGICK_NET_LINK_LIB("libraw")
 #endif

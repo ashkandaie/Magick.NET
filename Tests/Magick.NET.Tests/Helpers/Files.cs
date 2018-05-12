@@ -191,7 +191,7 @@ namespace Magick.NET.Tests
         {
             get
             {
-                return _Root + "Images/Viceland.png";
+                return _Root + "Images/viceland.png";
             }
         }
 
@@ -296,6 +296,14 @@ namespace Magick.NET.Tests
                 get
                 {
                     return _Root + @"Images/Coders/Page.tif";
+                }
+            }
+
+            public static string PdfExamplePasswordOriginalPDF
+            {
+                get
+                {
+                    return _Root + @"Images/Coders/pdf-example-password.original.pdf";
                 }
             }
 

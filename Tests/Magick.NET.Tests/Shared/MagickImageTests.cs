@@ -15,7 +15,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using ImageMagick;
-using ImageMagick.Defines;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 #if Q8
@@ -47,19 +46,6 @@ namespace Magick.NET.Tests
 #else
 #error Not implemented!
 #endif
-            }
-        }
-
-        [TestMethod]
-        public void Test_AdaptiveResize()
-        {
-            using (IMagickImage image = new MagickImage(Files.MagickNETIconPNG))
-            {
-                image.AdaptiveResize(100, 80);
-                Assert.AreEqual(100, image.Width);
-                Assert.AreEqual(80, image.Height);
-                ColorAssert.AreEqual(new MagickColor("#347bbd"), image, 34, 46);
-                ColorAssert.AreEqual(new MagickColor("#a8dff8"), image, 46, 46);
             }
         }
 
@@ -107,7 +93,7 @@ namespace Magick.NET.Tests
                 }
             }
 
-            MagickNET.SetRandomSeed(-1);
+            MagickNET.ResetRandomSeed();
         }
 
         [TestMethod]
@@ -408,9 +394,9 @@ namespace Magick.NET.Tests
                 image.RenderingIntent = RenderingIntent.Relative;
 
                 image.TransformColorSpace(ColorProfile.SRGB, ColorProfile.USWebCoatedSWOP);
-#if Q8
-                ColorAssert.AreEqual(new MagickColor("#da8d31"), image, 130, 100);
-#elif Q16 || Q16HDRI
+#if Q8 || Q16
+                ColorAssert.AreEqual(new MagickColor("#da478d06323d"), image, 130, 100);
+#elif Q16HDRI
                 ColorAssert.AreEqual(new MagickColor("#da7b8d1c318a"), image, 130, 100);
 #else
 #error Not implemented!
@@ -423,9 +409,9 @@ namespace Magick.NET.Tests
                 image.BlackPointCompensation = true;
 
                 image.TransformColorSpace(ColorProfile.SRGB, ColorProfile.USWebCoatedSWOP);
-#if Q8
-                ColorAssert.AreEqual(new MagickColor("#cc8432"), image, 130, 100);
-#elif Q16 || Q16HDRI
+#if Q8 || Q16
+                ColorAssert.AreEqual(new MagickColor("#cd0a844e3209"), image, 130, 100);
+#elif Q16HDRI
                 ColorAssert.AreEqual(new MagickColor("#ccf7847331b2"), image, 130, 100);
 #else
 #error Not implemented!
@@ -665,13 +651,6 @@ namespace Magick.NET.Tests
                 image.ClassType = ClassType.Direct;
                 Assert.AreEqual(ClassType.Direct, image.ClassType);
             }
-        }
-
-        [TestMethod]
-        public void Test_Clip()
-        {
-            Test_Clip(false, 0);
-            Test_Clip(true, Quantum.Max);
         }
 
         [TestMethod]
@@ -1460,7 +1439,7 @@ namespace Magick.NET.Tests
                 image.Emboss(4, 2);
 
 #if Q8
-                ColorAssert.AreEqual(new MagickColor("#ff5e43"), image, 325, 175);
+                ColorAssert.AreEqual(new MagickColor("#ff5b43"), image, 325, 175);
                 ColorAssert.AreEqual(new MagickColor("#4344ff"), image, 99, 270);
 #elif Q16
                 ColorAssert.AreEqual(new MagickColor("#ffff597e4397"), image, 325, 175);
@@ -2145,20 +2124,6 @@ namespace Magick.NET.Tests
         }
 
         [TestMethod]
-        public void Test_LiquidRescale()
-        {
-            using (IMagickImage image = new MagickImage(Files.MagickNETIconPNG))
-            {
-                MagickGeometry geometry = new MagickGeometry(128, 64);
-                geometry.IgnoreAspectRatio = true;
-
-                image.LiquidRescale(geometry);
-                Assert.AreEqual(128, image.Width);
-                Assert.AreEqual(64, image.Height);
-            }
-        }
-
-        [TestMethod]
         public void Test_Magnify()
         {
             using (IMagickImage image = new MagickImage(Files.MagickNETIconPNG))
@@ -2607,7 +2572,9 @@ namespace Magick.NET.Tests
                 image.Progress += progressEvent;
 
                 image.Flip();
+
                 Assert.IsTrue(progress <= (Percentage)1);
+                Assert.IsTrue(image.IsDisposed);
             }
         }
 
@@ -2672,174 +2639,6 @@ namespace Magick.NET.Tests
 
                 ColorAssert.AreEqual(new MagickColor("#2da153c773f1"), image, 29, 30);
                 ColorAssert.AreEqual(new MagickColor("#706195c7bbed"), image, 570, 265);
-            }
-        }
-
-        [TestMethod]
-        public void Test_Read()
-        {
-            IMagickImage image = new MagickImage();
-
-            ExceptionAssert.ThrowsArgumentException("data", () =>
-            {
-                image.Read(new byte[0]);
-            });
-
-            ExceptionAssert.ThrowsArgumentNullException("data", () =>
-            {
-                image.Read((byte[])null);
-            });
-
-            ExceptionAssert.ThrowsArgumentNullException("file", () =>
-            {
-                image.Read((FileInfo)null);
-            });
-
-            ExceptionAssert.ThrowsArgumentNullException("stream", () =>
-            {
-                image.Read((Stream)null);
-            });
-
-            ExceptionAssert.ThrowsArgumentNullException("fileName", () =>
-            {
-                image.Read((string)null);
-            });
-
-            ExceptionAssert.Throws<MagickBlobErrorException>(() =>
-            {
-                image.Read(Files.Missing);
-            }, "error/blob.c/OpenBlob");
-
-            ExceptionAssert.Throws<MagickBlobErrorException>(() =>
-            {
-                image.Read("png:" + Files.Missing);
-            }, "error/blob.c/OpenBlob");
-
-            image.Read(File.ReadAllBytes(Files.SnakewarePNG));
-            Assert.AreEqual(286, image.Width);
-            Assert.AreEqual(67, image.Height);
-
-            using (FileStream fs = File.OpenRead(Files.SnakewarePNG))
-            {
-                image.Read(fs);
-                Assert.AreEqual(286, image.Width);
-                Assert.AreEqual(67, image.Height);
-                Assert.AreEqual(MagickFormat.Png, image.Format);
-            }
-
-            image.Read(Files.SnakewarePNG);
-            Assert.AreEqual(286, image.Width);
-            Assert.AreEqual(67, image.Height);
-            Assert.AreEqual(MagickFormat.Png, image.Format);
-
-            image.Read(Files.Builtin.Rose);
-            Assert.AreEqual(70, image.Width);
-            Assert.AreEqual(46, image.Height);
-            Assert.AreEqual(MagickFormat.Pnm, image.Format);
-
-            image.Read(Files.RoseSparkleGIF);
-            Assert.AreEqual("RöseSparkle.gif", Path.GetFileName(image.FileName));
-            Assert.AreEqual(70, image.Width);
-            Assert.AreEqual(46, image.Height);
-            Assert.AreEqual(MagickFormat.Gif, image.Format);
-
-            image.Read("png:" + Files.SnakewarePNG);
-            Assert.AreEqual(286, image.Width);
-            Assert.AreEqual(67, image.Height);
-            Assert.AreEqual(MagickFormat.Png, image.Format);
-
-            MagickColor red = new MagickColor("red");
-
-            image.Read(red, 50, 50);
-            Assert.AreEqual(50, image.Width);
-            Assert.AreEqual(50, image.Height);
-            ColorAssert.AreEqual(red, image, 10, 10);
-
-            image.Read("xc:red", 50, 50);
-            Assert.AreEqual(50, image.Width);
-            Assert.AreEqual(50, image.Height);
-            ColorAssert.AreEqual(red, image, 5, 5);
-
-            red = new MagickColor("cmyk(0%,100%,100%,0)");
-
-            image.Read(red, 50, 50);
-            Assert.AreEqual(50, image.Width);
-            Assert.AreEqual(50, image.Height);
-            Assert.AreEqual(ColorSpace.CMYK, image.ColorSpace);
-            image.Clamp();
-            ColorAssert.AreEqual(red, image, 10, 10);
-
-            using (FileStream fs = File.OpenRead(Files.ImageMagickJPG))
-            {
-                image.Read(fs);
-
-                fs.Position = 0;
-                using (PartialStream partialStream = new PartialStream(fs, true))
-                {
-                    using (IMagickImage testImage = new MagickImage())
-                    {
-                        testImage.Read(partialStream);
-
-                        Assert.AreEqual(image.Width, testImage.Width);
-                        Assert.AreEqual(image.Height, testImage.Height);
-                        Assert.AreEqual(image.Format, testImage.Format);
-                        Assert.AreEqual(0.0, image.Compare(testImage, ErrorMetric.RootMeanSquared));
-                    }
-                }
-
-                fs.Position = 0;
-                using (PartialStream partialStream = new PartialStream(fs, false))
-                {
-                    using (IMagickImage testImage = new MagickImage())
-                    {
-                        testImage.Read(partialStream);
-
-                        Assert.AreEqual(image.Width, testImage.Width);
-                        Assert.AreEqual(image.Height, testImage.Height);
-                        Assert.AreEqual(image.Format, testImage.Format);
-                        Assert.AreEqual(0.0, image.Compare(testImage, ErrorMetric.RootMeanSquared));
-                    }
-                }
-            }
-
-            using (FileStream fs = File.OpenRead(Files.Logos.MagickNETSVG))
-            {
-                byte[] buffer = new byte[fs.Length + 1];
-                fs.Read(buffer, 0, (int)fs.Length);
-
-                using (MemoryStream memStream = new MemoryStream(buffer, 0, (int)fs.Length))
-                {
-                    image.Read(memStream, new MagickReadSettings()
-                    {
-                        Density = new Density(72),
-                    });
-
-                    ColorAssert.AreEqual(new MagickColor("#231f20"), image, 129, 101);
-                }
-            }
-
-            image.Dispose();
-
-            ExceptionAssert.Throws<ObjectDisposedException>(() =>
-            {
-                image.BackgroundColor = MagickColors.PaleGreen;
-            });
-
-            ExceptionAssert.ThrowsArgumentException("stream", () =>
-            {
-                using (TestStream testStream = new TestStream(false, true, true))
-                {
-                    new MagickImage(testStream);
-                }
-            });
-        }
-
-        [TestMethod]
-        public void Test_Read_Pango()
-        {
-            string fileName = "pango:<span font=\"Arial\">" + new string('*', 4500) + "</span>";
-            using (IMagickImage image = new MagickImage(fileName))
-            {
             }
         }
 
@@ -3214,15 +3013,9 @@ namespace Magick.NET.Tests
                 using (IPixelCollection pixels = image.GetPixels())
                 {
                     Pixel pixel = pixels.GetPixel(90, 9);
-#if Q8 || Q16
                     Assert.AreEqual(0, pixel.ToColor().A);
-#elif Q16HDRI
-                    Assert.AreEqual(OpenCLValue.Get(0.5, 0.0), pixel.ToColor().A);
-#else
-#error Not implemented!
-#endif
-                    pixel = pixels.GetPixel(34, 55);
 
+                    pixel = pixels.GetPixel(34, 55);
 #if Q8
                     Assert.AreEqual(68, pixel.ToColor().A);
 #elif Q16 || Q16HDRI
@@ -3820,8 +3613,8 @@ namespace Magick.NET.Tests
                 image.BackgroundColor = MagickColors.Aqua;
                 image.Vignette();
 
-                ColorAssert.AreEqual(new MagickColor("#647cffffffff"), image, 292, 0);
-                ColorAssert.AreEqual(new MagickColor("#91abffffffff"), image, 358, 479);
+                ColorAssert.AreEqual(new MagickColor("#6480ffffffff"), image, 292, 0);
+                ColorAssert.AreEqual(new MagickColor("#91acffffffff"), image, 358, 479);
             }
         }
 
@@ -4074,38 +3867,6 @@ namespace Magick.NET.Tests
             Assert.AreEqual(expectedX, info.X, 0.001, "X is not equal.");
             Assert.AreEqual(expectedY, info.Y, 0.001, "Y is not equal.");
             Assert.AreEqual(expectedZ, info.Z, 0.001, "Z is not equal.");
-        }
-
-        private static void Test_Clip(bool inside, QuantumType value)
-        {
-            using (IMagickImage image = new MagickImage(Files.InvitationTif))
-            {
-                image.Alpha(AlphaOption.Transparent);
-                image.Clip("Pad A", inside);
-                image.Alpha(AlphaOption.Opaque);
-
-                using (IMagickImage mask = image.WriteMask)
-                {
-                    Assert.IsNotNull(mask);
-                    Assert.AreEqual(false, mask.HasAlpha);
-
-                    using (IPixelCollection pixels = mask.GetPixels())
-                    {
-                        MagickColor pixelA = pixels.GetPixel(0, 0).ToColor();
-                        MagickColor pixelB = pixels.GetPixel(mask.Width - 1, mask.Height - 1).ToColor();
-
-                        Assert.AreEqual(pixelA, pixelB);
-                        Assert.AreEqual(value, pixelA.R);
-                        Assert.AreEqual(value, pixelA.G);
-                        Assert.AreEqual(value, pixelA.B);
-
-                        MagickColor pixelC = pixels.GetPixel(mask.Width / 2, mask.Height / 2).ToColor();
-                        Assert.AreEqual(Quantum.Max - value, pixelC.R);
-                        Assert.AreEqual(Quantum.Max - value, pixelC.G);
-                        Assert.AreEqual(Quantum.Max - value, pixelC.B);
-                    }
-                }
-            }
         }
 
         private static void Test_Clone(IMagickImage first, IMagickImage second)

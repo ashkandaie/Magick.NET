@@ -153,11 +153,6 @@ namespace ImageMagick
         Clip,
 
         /// <summary>
-        /// The system clipboard
-        /// </summary>
-        Clipboard,
-
-        /// <summary>
         /// Raw cyan, magenta, yellow, and black samples
         /// </summary>
         Cmyk,
@@ -238,11 +233,6 @@ namespace ImageMagick
         Dxt5,
 
         /// <summary>
-        /// Windows Enhanced Meta File
-        /// </summary>
-        Emf,
-
-        /// <summary>
         /// Encapsulated Portable Document Format
         /// </summary>
         Epdf,
@@ -298,11 +288,6 @@ namespace ImageMagick
         Erf,
 
         /// <summary>
-        /// High Dynamic-range (HDR)
-        /// </summary>
-        Exr,
-
-        /// <summary>
         /// Group 3 FAX
         /// </summary>
         Fax,
@@ -316,11 +301,6 @@ namespace ImageMagick
         /// Flexible Image Transport System
         /// </summary>
         Fits,
-
-        /// <summary>
-        /// Free Lossless Image Format
-        /// </summary>
-        Flif,
 
         /// <summary>
         /// Plasma fractal image
@@ -373,6 +353,11 @@ namespace ImageMagick
         Gray,
 
         /// <summary>
+        /// Raw gray and alpha samples
+        /// </summary>
+        Graya,
+
+        /// <summary>
         /// Raw CCITT Group4
         /// </summary>
         Group4,
@@ -386,6 +371,11 @@ namespace ImageMagick
         /// Radiance RGBE image format
         /// </summary>
         Hdr,
+
+        /// <summary>
+        /// High Efficiency Image Format
+        /// </summary>
+        Heic,
 
         /// <summary>
         /// Histogram of the image
@@ -1163,11 +1153,6 @@ namespace ImageMagick
         Wbmp,
 
         /// <summary>
-        /// Windows Meta File
-        /// </summary>
-        Wmf,
-
-        /// <summary>
         /// Windows Media Video
         /// </summary>
         Wmv,
@@ -1231,5 +1216,35 @@ namespace ImageMagick
         /// CCIR 601 4:1:1 or 4:2:2
         /// </summary>
         Yuv,
+
+#if WINDOWS_BUILD
+
+        /// <summary>
+        /// The system clipboard
+        /// </summary>
+        Clipboard,
+
+        /// <summary>
+        /// Windows Enhanced Meta File
+        /// </summary>
+        Emf,
+
+        /// <summary>
+        /// High Dynamic-range (HDR)
+        /// </summary>
+        Exr,
+
+        /// <summary>
+        /// Free Lossless Image Format
+        /// </summary>
+        Flif,
+
+        /// <summary>
+        /// Windows Meta File
+        /// </summary>
+        Wmf,
+
+#endif
+
     }
 }

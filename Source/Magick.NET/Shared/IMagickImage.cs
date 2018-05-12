@@ -246,6 +246,11 @@ namespace ImageMagick
         PixelInterpolateMethod Interpolate { get; set; }
 
         /// <summary>
+        /// Gets a value indicating whether the instance is disposed.
+        /// </summary>
+        bool IsDisposed { get; }
+
+        /// <summary>
         /// Gets a value indicating whether none of the pixels in the image have an alpha value other
         /// than OpaqueAlpha (QuantumRange).
         /// </summary>
@@ -349,6 +354,9 @@ namespace ImageMagick
         /// Resize using mesh interpolation. It works well for small resizes of less than +/- 50%
         /// of the original image size. For larger resizing on images a full filtered and slower resize
         /// function should be used instead.
+        /// <para />
+        /// Resize will fit the image into the requested size. It does NOT fill, the requested box size.
+        /// Use the <see cref="MagickGeometry"/> overload for more control over the resulting size.
         /// </summary>
         /// <param name="width">The new width.</param>
         /// <param name="height">The new height.</param>
@@ -2251,6 +2259,15 @@ namespace ImageMagick
         void LocalContrast(double radius, Percentage strength);
 
         /// <summary>
+        /// Local contrast enhancement.
+        /// </summary>
+        /// <param name="radius">The radius of the Gaussian, in pixels, not counting the center pixel.</param>
+        /// <param name="strength">The strength of the blur mask.</param>
+        /// <param name="channels">The channel(s) that should be changed.</param>
+        /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
+        void LocalContrast(double radius, Percentage strength, Channels channels);
+
+        /// <summary>
         /// Lower image (lighten or darken the edges of an image to give a 3-D lowered effect).
         /// </summary>
         /// <param name="size">The size of the edges.</param>
@@ -2916,6 +2933,9 @@ namespace ImageMagick
 
         /// <summary>
         /// Resize image to specified size.
+        /// <para />
+        /// Resize will fit the image into the requested size. It does NOT fill, the requested box size.
+        /// Use the <see cref="MagickGeometry"/> overload for more control over the resulting size.
         /// </summary>
         /// <param name="width">The new width.</param>
         /// <param name="height">The new height.</param>
@@ -2976,15 +2996,10 @@ namespace ImageMagick
         void RotationalBlur(double angle, Channels channels);
 
         /// <summary>
-        /// Resize image by using simple ratio algorithm.
-        /// </summary>
-        /// <param name="width">The new width.</param>
-        /// <param name="height">The new height.</param>
-        /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
-        void Scale(int width, int height);
-
-        /// <summary>
         /// Resize image by using pixel sampling algorithm.
+        /// <para />
+        /// Resize will fit the image into the requested size. It does NOT fill, the requested box size.
+        /// Use the <see cref="MagickGeometry"/> overload for more control over the resulting size.
         /// </summary>
         /// <param name="width">The new width.</param>
         /// <param name="height">The new height.</param>
@@ -3012,6 +3027,17 @@ namespace ImageMagick
         /// <param name="percentageHeight">The percentage of the height.</param>
         /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
         void Sample(Percentage percentageWidth, Percentage percentageHeight);
+
+        /// <summary>
+        /// Resize image by using simple ratio algorithm.
+        /// <para />
+        /// Resize will fit the image into the requested size. It does NOT fill, the requested box size.
+        /// Use the <see cref="MagickGeometry"/> overload for more control over the resulting size.
+        /// </summary>
+        /// <param name="width">The new width.</param>
+        /// <param name="height">The new height.</param>
+        /// <exception cref="MagickException">Thrown when an error is raised by ImageMagick.</exception>
+        void Scale(int width, int height);
 
         /// <summary>
         /// Resize image by using simple ratio algorithm.
@@ -3543,6 +3569,9 @@ namespace ImageMagick
 
         /// <summary>
         /// Resize image to thumbnail size.
+        /// <para />
+        /// Resize will fit the image into the requested size. It does NOT fill, the requested box size.
+        /// Use the <see cref="MagickGeometry"/> overload for more control over the resulting size.
         /// </summary>
         /// <param name="width">The new width.</param>
         /// <param name="height">The new height.</param>

@@ -66,10 +66,8 @@ namespace ImageMagick
             return GetAreaUnchecked(x, y, width, height);
         }
 
-        public QuantumType[] GetArea(MagickGeometry geometry)
+        public virtual QuantumType[] GetArea(MagickGeometry geometry)
         {
-            Throw.IfNull(nameof(geometry), geometry);
-
             return GetArea(geometry.X, geometry.Y, geometry.Width, geometry.Height);
         }
 
@@ -109,10 +107,8 @@ namespace ImageMagick
                 SetPixelUnchecked(pixel.X, pixel.Y, pixel.Value);
         }
 
-        public void SetPixel(IEnumerable<Pixel> pixels)
+        public virtual void SetPixel(IEnumerable<Pixel> pixels)
         {
-            Throw.IfNull(nameof(pixels), pixels);
-
             IEnumerator<Pixel> enumerator = pixels.GetEnumerator();
 
             while (enumerator.MoveNext())
@@ -157,6 +153,11 @@ namespace ImageMagick
             QuantumType[] castedValues = CastArray(values, Quantum.Convert);
             SetAreaUnchecked(x, y, width, height, castedValues);
         }
+
+        public virtual void SetArea(MagickGeometry geometry, byte[] values)
+        {
+            SetArea(geometry.X, geometry.Y, geometry.Width, geometry.Height, values);
+        }
 #endif
 
         public virtual void SetArea(int x, int y, int width, int height, double[] values)
@@ -165,15 +166,30 @@ namespace ImageMagick
             SetAreaUnchecked(x, y, width, height, castedValues);
         }
 
+        public virtual void SetArea(MagickGeometry geometry, double[] values)
+        {
+            SetArea(geometry.X, geometry.Y, geometry.Width, geometry.Height, values);
+        }
+
         public virtual void SetArea(int x, int y, int width, int height, int[] values)
         {
             QuantumType[] castedValues = CastArray(values, Quantum.Convert);
             SetAreaUnchecked(x, y, width, height, castedValues);
         }
 
+        public virtual void SetArea(MagickGeometry geometry, int[] values)
+        {
+            SetArea(geometry.X, geometry.Y, geometry.Width, geometry.Height, values);
+        }
+
         public virtual void SetArea(int x, int y, int width, int height, QuantumType[] values)
         {
             SetAreaUnchecked(x, y, width, height, values);
+        }
+
+        public virtual void SetArea(MagickGeometry geometry, QuantumType[] values)
+        {
+            SetArea(geometry.X, geometry.Y, geometry.Width, geometry.Height, values);
         }
 
         public QuantumType[] ToArray()
@@ -183,8 +199,6 @@ namespace ImageMagick
 
         public virtual byte[] ToByteArray(int x, int y, int width, int height, string mapping)
         {
-            Throw.IfNullOrEmpty(nameof(mapping), mapping);
-
             IntPtr nativeResult = IntPtr.Zero;
             byte[] result = null;
 
@@ -201,10 +215,8 @@ namespace ImageMagick
             return result;
         }
 
-        public byte[] ToByteArray(MagickGeometry geometry, string mapping)
+        public virtual byte[] ToByteArray(MagickGeometry geometry, string mapping)
         {
-            Throw.IfNull(nameof(geometry), geometry);
-
             return ToByteArray(geometry.X, geometry.Y, geometry.Width, geometry.Height, mapping);
         }
 
@@ -215,8 +227,6 @@ namespace ImageMagick
 
         public virtual ushort[] ToShortArray(int x, int y, int width, int height, string mapping)
         {
-            Throw.IfNullOrEmpty(nameof(mapping), mapping);
-
             IntPtr nativeResult = IntPtr.Zero;
             ushort[] result = null;
 
@@ -233,10 +243,8 @@ namespace ImageMagick
             return result;
         }
 
-        public ushort[] ToShortArray(MagickGeometry geometry, string mapping)
+        public virtual ushort[] ToShortArray(MagickGeometry geometry, string mapping)
         {
-            Throw.IfNull(nameof(geometry), geometry);
-
             return ToShortArray(geometry.X, geometry.Y, geometry.Width, geometry.Height, mapping);
         }
 

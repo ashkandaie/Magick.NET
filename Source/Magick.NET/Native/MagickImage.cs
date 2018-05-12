@@ -230,7 +230,7 @@ namespace ImageMagick
                 [DllImport(NativeLibrary.X64Name, CallingConvention = CallingConvention.Cdecl)]
                 public static extern IntPtr MagickImage_AdaptiveBlur(IntPtr Instance, double radius, double sigma, out IntPtr exception);
                 [DllImport(NativeLibrary.X64Name, CallingConvention = CallingConvention.Cdecl)]
-                public static extern IntPtr MagickImage_AdaptiveResize(IntPtr Instance, UIntPtr width, UIntPtr height, out IntPtr exception);
+                public static extern IntPtr MagickImage_AdaptiveResize(IntPtr Instance, IntPtr geometry, out IntPtr exception);
                 [DllImport(NativeLibrary.X64Name, CallingConvention = CallingConvention.Cdecl)]
                 public static extern IntPtr MagickImage_AdaptiveSharpen(IntPtr Instance, double radius, double sigma, UIntPtr channels, out IntPtr exception);
                 [DllImport(NativeLibrary.X64Name, CallingConvention = CallingConvention.Cdecl)]
@@ -311,6 +311,8 @@ namespace ImageMagick
                 public static extern void MagickImage_CopyPixels(IntPtr Instance, IntPtr image, IntPtr geometry, IntPtr offset, UIntPtr channels, out IntPtr exception);
                 [DllImport(NativeLibrary.X64Name, CallingConvention = CallingConvention.Cdecl)]
                 public static extern IntPtr MagickImage_Crop(IntPtr Instance, IntPtr geometry, out IntPtr exception);
+                [DllImport(NativeLibrary.X64Name, CallingConvention = CallingConvention.Cdecl)]
+                public static extern IntPtr MagickImage_CropAspectRatio(IntPtr Instance, IntPtr geometry, UIntPtr gravity, out IntPtr exception);
                 [DllImport(NativeLibrary.X64Name, CallingConvention = CallingConvention.Cdecl)]
                 public static extern IntPtr MagickImage_CropToTiles(IntPtr Instance, IntPtr geometry, out IntPtr exception);
                 [DllImport(NativeLibrary.X64Name, CallingConvention = CallingConvention.Cdecl)]
@@ -413,7 +415,7 @@ namespace ImageMagick
                 [DllImport(NativeLibrary.X64Name, CallingConvention = CallingConvention.Cdecl)]
                 public static extern IntPtr MagickImage_LiquidRescale(IntPtr Instance, IntPtr geometry, out IntPtr exception);
                 [DllImport(NativeLibrary.X64Name, CallingConvention = CallingConvention.Cdecl)]
-                public static extern IntPtr MagickImage_LocalContrast(IntPtr Instance, double radius, double strength, out IntPtr exception);
+                public static extern IntPtr MagickImage_LocalContrast(IntPtr Instance, double radius, double strength, UIntPtr channels, out IntPtr exception);
                 [DllImport(NativeLibrary.X64Name, CallingConvention = CallingConvention.Cdecl)]
                 public static extern IntPtr MagickImage_Magnify(IntPtr Instance, out IntPtr exception);
                 [DllImport(NativeLibrary.X64Name, CallingConvention = CallingConvention.Cdecl)]
@@ -775,7 +777,7 @@ namespace ImageMagick
                 [DllImport(NativeLibrary.X86Name, CallingConvention = CallingConvention.Cdecl)]
                 public static extern IntPtr MagickImage_AdaptiveBlur(IntPtr Instance, double radius, double sigma, out IntPtr exception);
                 [DllImport(NativeLibrary.X86Name, CallingConvention = CallingConvention.Cdecl)]
-                public static extern IntPtr MagickImage_AdaptiveResize(IntPtr Instance, UIntPtr width, UIntPtr height, out IntPtr exception);
+                public static extern IntPtr MagickImage_AdaptiveResize(IntPtr Instance, IntPtr geometry, out IntPtr exception);
                 [DllImport(NativeLibrary.X86Name, CallingConvention = CallingConvention.Cdecl)]
                 public static extern IntPtr MagickImage_AdaptiveSharpen(IntPtr Instance, double radius, double sigma, UIntPtr channels, out IntPtr exception);
                 [DllImport(NativeLibrary.X86Name, CallingConvention = CallingConvention.Cdecl)]
@@ -856,6 +858,8 @@ namespace ImageMagick
                 public static extern void MagickImage_CopyPixels(IntPtr Instance, IntPtr image, IntPtr geometry, IntPtr offset, UIntPtr channels, out IntPtr exception);
                 [DllImport(NativeLibrary.X86Name, CallingConvention = CallingConvention.Cdecl)]
                 public static extern IntPtr MagickImage_Crop(IntPtr Instance, IntPtr geometry, out IntPtr exception);
+                [DllImport(NativeLibrary.X86Name, CallingConvention = CallingConvention.Cdecl)]
+                public static extern IntPtr MagickImage_CropAspectRatio(IntPtr Instance, IntPtr geometry, UIntPtr gravity, out IntPtr exception);
                 [DllImport(NativeLibrary.X86Name, CallingConvention = CallingConvention.Cdecl)]
                 public static extern IntPtr MagickImage_CropToTiles(IntPtr Instance, IntPtr geometry, out IntPtr exception);
                 [DllImport(NativeLibrary.X86Name, CallingConvention = CallingConvention.Cdecl)]
@@ -958,7 +962,7 @@ namespace ImageMagick
                 [DllImport(NativeLibrary.X86Name, CallingConvention = CallingConvention.Cdecl)]
                 public static extern IntPtr MagickImage_LiquidRescale(IntPtr Instance, IntPtr geometry, out IntPtr exception);
                 [DllImport(NativeLibrary.X86Name, CallingConvention = CallingConvention.Cdecl)]
-                public static extern IntPtr MagickImage_LocalContrast(IntPtr Instance, double radius, double strength, out IntPtr exception);
+                public static extern IntPtr MagickImage_LocalContrast(IntPtr Instance, double radius, double strength, UIntPtr channels, out IntPtr exception);
                 [DllImport(NativeLibrary.X86Name, CallingConvention = CallingConvention.Cdecl)]
                 public static extern IntPtr MagickImage_Magnify(IntPtr Instance, out IntPtr exception);
                 [DllImport(NativeLibrary.X86Name, CallingConvention = CallingConvention.Cdecl)]
@@ -2802,24 +2806,27 @@ namespace ImageMagick
                 CheckException(exception, result);
                 Instance = result;
             }
-            public void AdaptiveResize(int width, int height)
+            public void AdaptiveResize(string geometry)
             {
-                IntPtr exception = IntPtr.Zero;
-                IntPtr result;
-                #if PLATFORM_AnyCPU
-                if (NativeLibrary.Is64Bit)
-                #endif
-                #if PLATFORM_x64 || PLATFORM_AnyCPU
-                result = NativeMethods.X64.MagickImage_AdaptiveResize(Instance, (UIntPtr)width, (UIntPtr)height, out exception);
-                #endif
-                #if PLATFORM_AnyCPU
-                else
-                #endif
-                #if PLATFORM_x86 || PLATFORM_AnyCPU
-                result = NativeMethods.X86.MagickImage_AdaptiveResize(Instance, (UIntPtr)width, (UIntPtr)height, out exception);
-                #endif
-                CheckException(exception, result);
-                Instance = result;
+                using (INativeInstance geometryNative = UTF8Marshaler.CreateInstance(geometry))
+                {
+                    IntPtr exception = IntPtr.Zero;
+                    IntPtr result;
+                    #if PLATFORM_AnyCPU
+                    if (NativeLibrary.Is64Bit)
+                    #endif
+                    #if PLATFORM_x64 || PLATFORM_AnyCPU
+                    result = NativeMethods.X64.MagickImage_AdaptiveResize(Instance, geometryNative.Instance, out exception);
+                    #endif
+                    #if PLATFORM_AnyCPU
+                    else
+                    #endif
+                    #if PLATFORM_x86 || PLATFORM_AnyCPU
+                    result = NativeMethods.X86.MagickImage_AdaptiveResize(Instance, geometryNative.Instance, out exception);
+                    #endif
+                    CheckException(exception, result);
+                    Instance = result;
+                }
             }
             public void AdaptiveSharpen(double radius, double sigma, Channels channels)
             {
@@ -3588,6 +3595,28 @@ namespace ImageMagick
                     #endif
                     #if PLATFORM_x86 || PLATFORM_AnyCPU
                     result = NativeMethods.X86.MagickImage_Crop(Instance, geometryNative.Instance, out exception);
+                    #endif
+                    CheckException(exception, result);
+                    Instance = result;
+                }
+            }
+            public void CropAspectRatio(string geometry, Gravity gravity)
+            {
+                using (INativeInstance geometryNative = UTF8Marshaler.CreateInstance(geometry))
+                {
+                    IntPtr exception = IntPtr.Zero;
+                    IntPtr result;
+                    #if PLATFORM_AnyCPU
+                    if (NativeLibrary.Is64Bit)
+                    #endif
+                    #if PLATFORM_x64 || PLATFORM_AnyCPU
+                    result = NativeMethods.X64.MagickImage_CropAspectRatio(Instance, geometryNative.Instance, (UIntPtr)gravity, out exception);
+                    #endif
+                    #if PLATFORM_AnyCPU
+                    else
+                    #endif
+                    #if PLATFORM_x86 || PLATFORM_AnyCPU
+                    result = NativeMethods.X86.MagickImage_CropAspectRatio(Instance, geometryNative.Instance, (UIntPtr)gravity, out exception);
                     #endif
                     CheckException(exception, result);
                     Instance = result;
@@ -4530,7 +4559,7 @@ namespace ImageMagick
                     Instance = result;
                 }
             }
-            public void LocalContrast(double radius, double strength)
+            public void LocalContrast(double radius, double strength, Channels channels)
             {
                 IntPtr exception = IntPtr.Zero;
                 IntPtr result;
@@ -4538,13 +4567,13 @@ namespace ImageMagick
                 if (NativeLibrary.Is64Bit)
                 #endif
                 #if PLATFORM_x64 || PLATFORM_AnyCPU
-                result = NativeMethods.X64.MagickImage_LocalContrast(Instance, radius, strength, out exception);
+                result = NativeMethods.X64.MagickImage_LocalContrast(Instance, radius, strength, (UIntPtr)channels, out exception);
                 #endif
                 #if PLATFORM_AnyCPU
                 else
                 #endif
                 #if PLATFORM_x86 || PLATFORM_AnyCPU
-                result = NativeMethods.X86.MagickImage_LocalContrast(Instance, radius, strength, out exception);
+                result = NativeMethods.X86.MagickImage_LocalContrast(Instance, radius, strength, (UIntPtr)channels, out exception);
                 #endif
                 CheckException(exception, result);
                 Instance = result;

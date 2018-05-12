@@ -26,28 +26,26 @@ namespace Magick.NET.Tests
         [TestMethod]
         public void Features_ContainsExpectedFeatures()
         {
-#if Q8 || Q16
+            var expected = "Cipher DPC ";
+#if Q16HDRI
+            expected += "HDRI ";
+#endif
+#if WINDOWS_BUILD
+            expected += "OpenCL ";
+#endif
 #if DEBUG_TEST
-            Assert.AreEqual("Debug Cipher DPC OpenCL ", MagickNET.Features);
-#else
-            Assert.AreEqual("Cipher DPC OpenCL ", MagickNET.Features);
+            expected = "Debug " + expected;
 #endif
-#elif Q16HDRI
-#if DEBUG_TEST
-            Assert.AreEqual("Debug Cipher DPC HDRI OpenCL ", MagickNET.Features);
-#else
-            Assert.AreEqual("Cipher DPC HDRI OpenCL ", MagickNET.Features);
-#endif
-#else
-#error Not implemented!
-#endif
+
+            Assert.AreEqual(expected, MagickNET.Features);
         }
 
         [TestMethod]
         public void FontFamilies_ContainsArial()
         {
-            string fontFamily = MagickNET.FontFamilies.FirstOrDefault(f => f == "Arial");
-            Assert.IsNotNull(fontFamily);
+            var fontFamilies = MagickNET.FontFamilies.ToArray();
+            var fontFamily = fontFamilies.FirstOrDefault(f => f == "Arial");
+            Assert.IsNotNull(fontFamily, $"Unable to find Arial in font families: {string.Join(",", fontFamilies)}");
         }
 
         [TestMethod]
@@ -226,25 +224,6 @@ namespace Magick.NET.Tests
         }
 
         [TestMethod]
-        public void MagickFormats_ContainsFormatInformationForAllFormats()
-        {
-            List<string> missingFormats = new List<string>();
-
-            foreach (MagickFormat format in Enum.GetValues(typeof(MagickFormat)))
-            {
-                if (format == MagickFormat.Unknown)
-                    continue;
-
-                MagickFormatInfo formatInfo = MagickNET.GetFormatInformation(format);
-                if (formatInfo == null)
-                    missingFormats.Add(format.ToString());
-            }
-
-            if (missingFormats.Count > 0)
-                Assert.Fail("Cannot find MagickFormatInfo for: " + string.Join(", ", missingFormats.ToArray()));
-        }
-
-        [TestMethod]
         public void SetRandomSeed_OrderedTests()
         {
             SetRandomSeed_NotSet_ImagesWithPlasmaAreNotEqual();
@@ -399,7 +378,7 @@ namespace Magick.NET.Tests
 
         private void SetRandomSeed_SetToFixedValue_ImagesWithPlasmaAreEqual()
         {
-            MagickNET.SetRandomSeed(1337);
+            MagickNET.SetRandomSeed(42);
 
             using (IMagickImage first = new MagickImage("plasma:red", 10, 10))
             {
@@ -408,6 +387,8 @@ namespace Magick.NET.Tests
                     Assert.AreEqual(0.0, first.Compare(second, ErrorMetric.RootMeanSquared));
                 }
             }
+
+            MagickNET.ResetRandomSeed();
         }
     }
 }
